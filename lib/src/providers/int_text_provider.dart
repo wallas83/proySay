@@ -3,21 +3,27 @@ import 'package:flutter/widgets.dart';
 
 class IntTextProvider with ChangeNotifier {
 
-    double monto1 = 1.0;
-    double monto2 = 1.0;
+    double monto1 = 0.0;
+    double monto2 = 0.0;
     double result = 0.0;
-    int selected = 1;
+    int selected = 0;
 
      List<DropdownMenuItem<int>> listDrop = List();
 
-    void loadData(){
-      listDrop = [];
-       listDrop.add( DropdownMenuItem(
+     futureLoad()async{
+         await loadData();
+
+       
+     }
+
+     loadData(){
+       listDrop = [];
+        listDrop.add( DropdownMenuItem(
         child: Text('Seleccione'),
-        value: 1,)
+        value: 0,)
         );
-      listDrop.add( DropdownMenuItem(
-        child: Text('2 mm'),
+        listDrop.add( DropdownMenuItem(
+        child: Text('2.5 mm'),
         value: 90,)
         );
 
@@ -78,6 +84,16 @@ class IntTextProvider with ChangeNotifier {
     double resul = (this.monto1 * this.monto2 * this.selected) / (180 * 270) ;
     resul.toString();
     notifyListeners();
+    return double.parse(resul.toStringAsFixed(3)); 
+
+  //return resul;
+  }
+
+   Future<double> getResultFuture() async{
+
+    double resul = (this.monto1 * this.monto2 * this.selected) / (180 * 270) ;
+     resul.toString();
+ 
     return double.parse(resul.toStringAsFixed(3)); 
 
   //return resul;

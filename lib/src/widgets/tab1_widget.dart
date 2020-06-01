@@ -11,7 +11,7 @@ class Tab1 extends StatefulWidget {
 }
 
 
-class _Tab1State extends State<Tab1> {
+class _Tab1State extends State<Tab1> with AutomaticKeepAliveClientMixin{
 
   
  
@@ -23,6 +23,10 @@ class _Tab1State extends State<Tab1> {
       children: <Widget>[_Resultado(), _Inputs1(), _Inputs2(), _SliderCont()],
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
 class _SliderCont extends StatelessWidget {
@@ -36,31 +40,36 @@ class _SliderCont extends StatelessWidget {
           borderRadius: BorderRadius.circular(15.0),
           border: Border.all(color: Colors.black12, style: BorderStyle.solid)),
       child: Column(
-        children: <Widget>[_VistaSliver(), _DropdownGrafico()],
+        children: <Widget>[_VistaSliver(), 
+        
+          Consumer<IntTextProvider>(
+            
+            builder: (BuildContext context, snapshot,_){
+              return FutureBuilder(
+                future: snapshot.futureLoad(),
+                builder: (BuildContext context,snapshotDropDown){
+                  return DropdownButtonFormField(
+                    
+                    items: snapshot.listDrop, 
+                    hint: Text('Selecccione Grosor'),
+                    value: snapshot.selected, 
+                    
+                    validator: (value) => value == 0 ? 'seleccione el grosor' : null,
+                    onChanged: (int newValue){
+                    snapshot.getSelectedDrop(newValue);
+                    
+                },);
+                });
+            }
+            )
+              
+        ],
       ),
     );
   }
 }
 
-class _DropdownGrafico extends StatelessWidget {
 
-  
-
-  @override
-  Widget build(BuildContext context) {
-   
-    final resul = Provider.of<IntTextProvider>(context);
-    resul.loadData();
-    return DropdownButton(
-      items: resul.listDrop,
-      hint: Text('Selecccione Grosor'),
-      value: resul.selected, 
-      onChanged: (int newValue){
-        resul.getSelectedDrop(newValue);
-      },
-    );
-  }
-}
 
 class _VistaSliver extends StatelessWidget {
   @override
@@ -73,7 +82,6 @@ class _VistaSliver extends StatelessWidget {
             'Grosor',
             style: TextStyle(color: Colors.white70, fontSize: 25.0),
           ),
-          Text('0.0', style: TextStyle(color: Colors.white, fontSize: 25.0))
         ],
       ),
     );
@@ -83,7 +91,7 @@ class _VistaSliver extends StatelessWidget {
 class _Resultado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final result = Provider.of<IntTextProvider>(context);
+   // final result = Provider.of<IntTextProvider>(context);
     return Container(
       height: 130,
       width: MediaQuery.of(context).size.width,
@@ -127,10 +135,23 @@ class _Resultado extends StatelessWidget {
                     style: TextStyle(color: Colors.black54, fontSize: 41.0),
                   ),
                 ),
-                Text(
-                  result.getResult().toString(),
-                  style: TextStyle(color: Colors.black87, fontSize: 50.0),
-                )
+
+                Consumer<IntTextProvider>(
+                  
+                  builder: (BuildContext context, snapshot,_){
+                    return FutureBuilder(
+                      future:snapshot.getResultFuture() ,
+                      builder: (BuildContext context, snapshotText ){
+                        return Text(
+                              snapshotText.data.toString(),
+                              style: TextStyle(color: Colors.black87, fontSize: 50.0),
+                                );
+                      });
+                  })  
+                // Text(
+                //   result.getResult().toString(),
+                //   style: TextStyle(color: Colors.black87, fontSize: 50.0),
+                // )
               ],
             ),
           )
@@ -161,10 +182,16 @@ class _InputText1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final monto1 = Provider.of<IntTextProvider>(context);
-    return TextField(
+    return TextFormField(
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       style: TextStyle(color: Colors.white),
-      decoration: InputDecoration(hintText: "Monto"),
+      decoration: InputDecoration(hintText: "1 dimensión"),
+      validator: (value){
+        if(value.isEmpty){
+          return 'Por favor ingrese un número  ';
+        }
+        return null;
+      },
       onChanged: (String value) {
         try {
           monto1.getMonto1(value);
@@ -195,10 +222,16 @@ class _InputText2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final monto2 = Provider.of<IntTextProvider>(context);
-    return TextField(
+    return TextFormField(
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       style: TextStyle(color: Colors.white),
-      decoration: InputDecoration(hintText: "Monto"),
+      decoration: InputDecoration(hintText: "2 dimensión"),
+      validator: (value){
+        if(value.isEmpty){
+          return 'Por favor ingrese un número  ';
+        }
+        return null;
+      },
       onChanged: (String value) {
         try {
           monto2.getMonto2(value);
